@@ -1,0 +1,13 @@
+---
+title: "p8105_hw2_msj2167"
+output: github_document
+date: "2026-10-07"
+---
+
+Loading libraries 
+
+```{r message = F}
+library(tidyverse)
+library(readxl)
+```
+
