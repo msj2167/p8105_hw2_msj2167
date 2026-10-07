@@ -15,7 +15,9 @@ library(readxl)
 
 #### Importing and merging the datasets 
 
-To combine the three trash wheel datasets, I imported and cleaned each sheet separately so that the variables would have the same names and formats. For each sheet, I used the range argument to read only the data cells that were necessary. I cleaned the variable names and removed any rows without a dumpster number using drop_na(dumpster). I also added a trash_wheel variable to each dataset to identify which trash wheel collected the trash, which would also help me identify which rows came from which original data sheet. Some variables were stored differently across sheets, so I converted them to matching types: year was stored as text in the Mr. Trash Wheel sheet, so I converted it to numeric, and plastic_bottles was stored as a character variable in the Professor Trash Wheel sheet, so I converted it to numeric to match the other datasets. I also rounded the number of sports balls to the nearest integer and converted it to an integer variable for the Mr. Trash Wheel data. 
+To combine the three trash wheel datasets, I imported and cleaned each sheet separately so that the variables would have the same names and formats. For each sheet, I used the range argument to read only the data cells that were necessary. I cleaned the variable names and removed any rows without a dumpster number using drop_na(dumpster). I also added a trash_wheel variable to each dataset to identify which trash wheel collected the trash, which would also help me identify which rows came from which original data sheet. Some variables were stored differently across sheets, so I converted them to matching types: year was stored as text in the Mr. Trash Wheel sheet, so I converted it to numeric, and plastic_bottles was stored as a character variable in the Professor Trash Wheel sheet, so I converted it to numeric to match the other datasets. I also converted number of sports balls to an integer variable and rounded it to the nearest integr for the Mr. Trash Wheel data. 
+
+Importing Mr. Trash Wheel Data
 
 ```{r}
 mr_trash_wheel_df =
@@ -34,7 +36,7 @@ mr_trash_wheel_df =
 
 Import Professor Trash Wheel
 
-```{r warning = FALSE}
+```{r}
 prof_trash_wheel_df =
   read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
   sheet = "Professor Trash Wheel",
@@ -86,7 +88,7 @@ The total number of cigarette butts collected by Gwynnda in June of 2022 was `r 
 
 When importing the data I created two dataframes, one to clean the data and that contained all participants who were recruited and another that filtered participants based on the inclusion criteria of being MCI-free at baseline. I skipped the first row, which contained a code book and also specified in the code that blank cells, "NA", and "." should be treated as missing values. I cleaned the variable names and recoded sex and APOE4 status to have meaningful descriptive labels instead of numeric codes. I also renamed the id variable to match the amyloid longitudinal data set variable as we will merge these files later. When removing any participants who do not meet the stated inclusion criteria, I had to make sure to look into those who had NA for age_at_onset as it was missing if a subject remains MCI free during the follow-up period. I also kept participants whose age at onset was greater than their baseline age, since they developed MCI after enrolling.
 
-```{r message = F}
+```{r}
 mci_recruitment_df =
   read_csv(
     file = "data/MCI_baseline.csv",
@@ -121,7 +123,7 @@ The proportion of women who were APOE4 carriers was `r round(mean(pull(filter(mc
 
 To clean this data, I first looked at the raw file and noticed that the first line was a codebook, so I made sure to skip it when importing. The codebook indicates that the values are amyloid β 42/40 ratios measured at baseline and at 2, 4, 6, and 8 years after baseline. I noticed when looking at the raw data file that missing values were not coded consistently. Some were recorded as "NA" and others as "Na," which caused the biomarker columns to be read as character variables. I specified both as missing values during import so the columns were read as numeric. The data was originally in wide format, with one column per visit, so I used pivot_longer() to convert them to a tidy long format with one row per participant per visit and each variable as its own column. I then recoded "baseline" as 0 and converted time to a numeric variable representing years since baseline. 
 
-```{r message = F}
+```{r}
 mci_amyloid_df =
   read_csv(
     file = "data/mci_amyloid.csv",
@@ -140,7 +142,7 @@ mci_amyloid_df =
     )
 ```
 
-The final dataset contains `r n_distinct(pull(mci_amyloid_df, study_id))` participants and `r nrow(mci_amyloid_df)` rows, with variables for `r names(mci_amyloid_df)`.
+The final dataset contains `r n_distinct(pull(mci_amyloid_df, study_id))` participants and `r nrow(mci_amyloid_df)` observations, with variables for `r names(mci_amyloid_df)`.
 
 #### Merging the datasets 
 
@@ -163,9 +165,10 @@ The baseline dataset includes `r n_mci_baseline_df` participants and the amyloid
 
 Participants who appear only in the amyloid dataset may include those who were excluded for having MCI at baseline, while participants who are only present in the baseline data may have dropped out of the study and so do not have longitudinally observed biomarker values. 
 
-The combined dataset has `r n_mci_combined_df` participants and `r nrow(mci_combined_df)` rows, with variables for `r names(mci_combined_df)`.
+The combined dataset has `r n_mci_combined_df` participants and `r nrow(mci_combined_df)` observations, with variables for `r names(mci_combined_df)`.
 
 Saving my combined file: 
+
 ```{r}
 write_csv(mci_combined_df, "data/mci_combined.csv")
 ```
