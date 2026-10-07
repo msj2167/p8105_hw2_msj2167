@@ -11,3 +11,56 @@ library(tidyverse)
 library(readxl)
 ```
 
+Importing my Mr.TrashWheel dataset 
+
+Cleaned all the datasets to be able to bind together by making all variables in the same format. 
+
+```{r}
+MrTrashWheel_df =
+  read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
+  sheet = "Mr. Trash Wheel",
+  range = "A2:N742",
+  na=c(".", "", "NA")) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>  # removes rows with no dumpster-specific data
+    mutate(
+      sports_balls= as.integer(round(sports_balls)),
+      trash_wheel = "Mr. Trash Wheel",
+      year = as.numeric(year),
+    )
+```
+
+Import Professor Trash Wheel
+
+```{r warning = FALSE}
+ProfTrashWheel_df =
+  read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
+  sheet = "Professor Trash Wheel",
+  range = "A2:M139",
+  na=c(".", "", "NA")) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |> # removes rows with no dumpster-specific data
+    mutate(
+   trash_wheel = "Professor TrashWheel",
+ plastic_bottles = as.numeric(plastic_bottles)
+ )
+```
+
+Import Gwynnda
+
+```{r}
+Gwynnda_df =
+  read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
+  sheet = "Gwynnda the Good Wheel of the W",
+  range = "A2:L394",
+  na=c(".", "", "NA")) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) # removes rows with no dumpster-specific data
+```
+
+Merging the datasets
+
+```{r}
+Trash_df = 
+  bind_rows(MrTrashWheel_df, ProfTrashWheel_df, Gwynnda_df)
+```
