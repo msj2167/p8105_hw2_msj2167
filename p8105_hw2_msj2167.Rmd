@@ -11,18 +11,18 @@ library(tidyverse)
 library(readxl)
 ```
 
-Importing my Mr.TrashWheel dataset 
+Importing Mr.Trash Wheel dataset 
 
 Cleaned all the datasets to be able to bind together by making all variables in the same format. 
 
 ```{r}
-MrTrashWheel_df =
+mr_trash_wheel_df =
   read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
   sheet = "Mr. Trash Wheel",
   range = "A2:N742",
   na=c(".", "", "NA")) |>
   janitor::clean_names() |>
-  drop_na(dumpster) |>  # removes rows with no dumpster-specific data
+  drop_na(dumpster) |>
     mutate(
       sports_balls= as.integer(round(sports_balls)),
       trash_wheel = "Mr. Trash Wheel",
@@ -33,15 +33,15 @@ MrTrashWheel_df =
 Import Professor Trash Wheel
 
 ```{r warning = FALSE}
-ProfTrashWheel_df =
+prof_trash_wheel_df =
   read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
   sheet = "Professor Trash Wheel",
   range = "A2:M139",
   na=c(".", "", "NA")) |>
   janitor::clean_names() |>
-  drop_na(dumpster) |> # removes rows with no dumpster-specific data
+  drop_na(dumpster) |>
     mutate(
-   trash_wheel = "Professor TrashWheel",
+   trash_wheel = "Professor Trash Wheel",
  plastic_bottles = as.numeric(plastic_bottles)
  )
 ```
@@ -49,18 +49,29 @@ ProfTrashWheel_df =
 Import Gwynnda
 
 ```{r}
-Gwynnda_df =
+gwynnda_df =
   read_excel("Data/202610 Trash Wheel Collection Data.xlsx", 
   sheet = "Gwynnda the Good Wheel of the W",
   range = "A2:L394",
   na=c(".", "", "NA")) |>
   janitor::clean_names() |>
-  drop_na(dumpster) # removes rows with no dumpster-specific data
+  drop_na(dumpster) |>
+   mutate(
+   trash_wheel = "Gwynnda")
 ```
 
 Merging the datasets
 
 ```{r}
-Trash_df = 
-  bind_rows(MrTrashWheel_df, ProfTrashWheel_df, Gwynnda_df)
+trash_df = 
+  bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynnda_df)
 ```
+
+In the trash_df dataset there are `r nrow(trash_df)` observations and `r ncol(trash_df)` variables. Some of the key variables are `r names(trash_df)`.
+
+The total weight collected by Professor Trash Wheel was `r round(sum(pull(filter(trash_df, trash_wheel == "Professor Trash Wheel"), weight_tons), na.rm = TRUE), 2)` tons.
+
+The total number of cigarette butts collected by Gwynnda in June of 2022 was `r format(sum(pull(filter(trash_df, trash_wheel == "Gwynnda", month == "June", year == 2022), cigarette_butts), na.rm = TRUE), big.mark = ",")`
+
+
+
